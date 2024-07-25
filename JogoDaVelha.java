@@ -1,121 +1,174 @@
 package JogoDaVelha;
 
+import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.util.Scanner;
+import javax.swing.*;
 
-public class JogoDaVelha {
+public class JogoDaVelha extends JFrame {
+	JButton [] bt = new JButton[9];
+	JButton novo = new JButton("Novo Jogo");
+	JButton zerar = new JButton("Zerar Placar");
 	
-	public static void main(String []args) {
-		Campo [][] velha = new Campo[3][3];
-		char simboloAtual = 'X';
-		Boolean game = true;
-		char vitoria = ' ';
-		Scanner scan = new Scanner(System.in);
+	JLabel placar = new JLabel("Placar");
+	JLabel px = new JLabel ("X	0");
+	JLabel po = new JLabel ("O	0");
+	
+	int PX = 0;
+	int PO = 0;
+	boolean xo = false;
+	boolean[] click =  new boolean[9];
+	
+	public JogoDaVelha() {
+		// Definir a tela
+		setVisible(true);
+		setTitle("Jogo da Velha");
+		setDefaultCloseOperation(3);
+		setLayout(null);
+		setBounds(500,300,700,500); // Para definir o tamanho da janela
 		
-		iniciarJogo(velha);
-		while (game) {
-			desenhaJogo(velha);
-			vitoria = verificaVitoria(velha);
-			
-			if(vitoria != ' ') {
-				System.out.printf("Jogador %s venceu%n", vitoria);
-				break;
+		add(placar);
+		add(px);
+		add(po);
+		placar.setBounds(420, 50,100,30);
+		px.setBounds(400, 75,140,30);
+		po.setBounds(425, 75,140,30);
+		
+		add(novo);
+		add(zerar);
+		novo.setBounds(410,130,140,30);
+		zerar.setBounds(410,180,140,30);
+		
+		
+		novo.addActionListener(new java.awt.event.ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				limpar();
 			}
-
-			try {
-				if(verificarJogada(velha, jogar(scan, simboloAtual), simboloAtual)) {
-					if(simboloAtual == 'X') {
-						simboloAtual = 'O';
-					}
-					else {
-						simboloAtual = 'X';
+		});
+		
+		zerar.addActionListener(new java.awt.event.ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PO = 0;
+				PX = 0;
+				atualizar();
+			}
+		});
+		
+		// Criar os botões que para simbolizar cada campo
+		criarBotao(bt);
+		// Inicializar o click como falso
+		inicializarClick(click);
+		// Criar acao nos 9 botoes
+		for (int i = 0; i < 9; i++) {
+			int index = i;
+			bt[i].addActionListener(new java.awt.event.ActionListener() {	
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(click[index]== false) {
+						click[index] = true;
+						mudar(bt[index]);
 					}
 				}
-				
-				
-			}catch(Exception e) {
-				System.out.printf("Error");
+			});
+		}
+	}
+	
+	// Criar 9 botoes sinalizando as posicoes do jogo da velha
+	public void criarBotao(JButton[] bt) {
+		int cont = 0;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				bt[cont] = new JButton();
+				add(bt[cont]);
+				bt[cont].setBounds((100*i) + 50, (100*j) + 50, 95 , 95); // Para definir o tamanho dos botões
+				bt[cont].setFont(new Font("Arial", Font.BOLD,40)); // Fonte do que vai ser escrito no botao
+				cont++;
 			}
 		}
-		
-		System.out.println("Fim do Jogo");
 	}
 	
-	// Desenha o Formato do jogo na tela do Usuario
-	public static void desenhaJogo(Campo[][] velha) {
-		limparTela();
-		System.out.println("    0     1     2");
-		System.out.printf("0   %c  |  %c  | %c %n", velha[0][0].getSimbolo(), velha[0][1].getSimbolo(), velha[0][2].getSimbolo());
-		System.out.println("  -----------------");
-		System.out.printf("1   %c  |  %c  | %c %n", velha[1][0].getSimbolo(), velha[1][1].getSimbolo(), velha[1][2].getSimbolo());
-		System.out.println("  -----------------");
-		System.out.printf("2   %c  |  %c  | %c %n", velha[2][0].getSimbolo(), velha[2][1].getSimbolo(), velha[2][2].getSimbolo());
-	}
-	
-	// Imprime linhas para limpar a tela do usuario
-	public static void limparTela() {
-		for(int cont = 0; cont < 5; cont++) {
-			System.out.println("");
+	// Inicializa todos os clicks dos botoes como falso
+	public void inicializarClick(boolean []click) {
+		for (int i = 0; i < 9; i++) {
+			click[i] = false;
 		}
 	}
 	
-	// Pega a posicao na matriz que o jogador quer jogar
-	public static int[] jogar(Scanner scan, char sa) {
-		int p[] = new int [2];
-		System.out.printf("%s %c%n", "Quem Joga: ", sa);
-		System.out.printf("Informe a linha: ");
-		p[0] = scan.nextInt();
-		System.out.printf("Informe a coluna: ");
-		p[1] = scan.nextInt();
-		
-		return p;
-	}
-	
-	// Verifica se pode fazer jogada em um campo
-	public static Boolean verificarJogada(Campo[][] velha, int p[], char simboloAtual) {
-		if(velha[p[0]][p[1]].getSimbolo() == ' ') {
-			velha[p[0]][p[1]].setSimbolo(simboloAtual);
-			return true;
+	// Muda a vez do jogador
+	public void mudar(JButton btn) {
+		if(xo) {
+			btn.setText("O");
+			xo = false;
 		}
 		else {
-			return false;
+			btn.setText("X");
+			xo = true;
 		}
+		ganhou();
 	}
 	
+	public void atualizar() {
+		px.setText("X 	"+ PX);
+		po.setText("O 	"+ PO);
+	}
 	
-	public static void iniciarJogo(Campo [][] velha) {
-		for(int l = 0; l < 3; l++) {
-			for(int c = 0; c < 3; c++) {
-				velha[l][c] = new Campo();
+	// Verifica quem ganhou ou se teve empate
+	public void ganhou () {
+		int cont = 0;
+		
+		for(int i = 0; i < 9; i++) {
+			if(click[i]== true) {
+				cont++;
 			}
 		}
-	}
-	
-	
-	// Verifica se o jogador ganhou
-	public static char verificaVitoria(Campo[][] velha) {
 		
-		 for (int i = 0; i < velha.length; i++) {
-
-	            if (velha[i][0].getSimbolo() == 'X' && velha[i][1].getSimbolo() == 'X' && velha[i][2].getSimbolo() == 'X' || velha[i][0].getSimbolo() == 'O' && velha[i][1].getSimbolo() == 'O' && velha[i][2].getSimbolo() == 'O') {
-	                return velha[i][0].getSimbolo();
-	            }
-	        }
-	        for (int i = 0; i < velha.length; i++) {
-	            if (velha[0][i].getSimbolo() == 'X' && velha[1][i].getSimbolo() == 'X' && velha[2][i].getSimbolo() == 'X' || velha[0][i].getSimbolo() == 'O' && velha[1][i].getSimbolo() == 'O' && velha[2][i].getSimbolo() == 'O') {
-	                return velha[0][i].getSimbolo();
-	            }
-
-	        }
-
-	        if ((velha[0][0].getSimbolo() == 'X' && velha[1][1].getSimbolo() == 'X' && velha[2][2].getSimbolo() == 'X') || (velha[0][2].getSimbolo() == 'O' && velha[1][1].getSimbolo() == 'O' && velha[2][0].getSimbolo() == 'O')) {
-	            return velha[1][1].getSimbolo();
-	        }
-
-	        if((velha[0][0].getSimbolo() =='O' && velha[1][1].getSimbolo() == 'O' && velha[2][2].getSimbolo() == 'O') || (velha[0][2].getSimbolo() == 'X' && velha[1][1].getSimbolo() == 'X' && velha[2][0].getSimbolo() == 'X')){
-	            return velha[1][1].getSimbolo();
-	        }
-	
-		return ' ';
+		if(bt[0].getText() == "X" && bt[1].getText() == "X" && bt[2].getText() == "X" ||
+		   bt[3].getText() == "X" && bt[4].getText() == "X" && bt[5].getText() == "X" ||
+		   bt[6].getText() == "X" && bt[7].getText() == "X" && bt[8].getText() == "X" ||
+		   bt[0].getText() == "X" && bt[3].getText() == "X" && bt[6].getText() == "X" ||
+		   bt[1].getText() == "X" && bt[4].getText() == "X" && bt[7].getText() == "X" ||
+		   bt[2].getText() == "X" && bt[5].getText() == "X" && bt[8].getText() == "X" ||
+		   bt[0].getText() == "X" && bt[4].getText() == "X" && bt[8].getText() == "X" ||
+		   bt[2].getText() == "X" && bt[4].getText() == "X" && bt[6].getText() == "X" ) {
+			
+			JOptionPane.showMessageDialog(null, "X ganhou");	
+			PX++;
+			atualizar();
+			limpar();
+		}
+		else if(bt[0].getText() == "O" && bt[1].getText() == "O" && bt[2].getText() == "O" ||
+				bt[3].getText() == "O" && bt[4].getText() == "O" && bt[5].getText() == "O" ||
+				bt[6].getText() == "O" && bt[7].getText() == "O" && bt[8].getText() == "O" ||
+				bt[0].getText() == "O" && bt[3].getText() == "O" && bt[6].getText() == "O" ||
+				bt[1].getText() == "O" && bt[4].getText() == "O" && bt[7].getText() == "O" ||
+				bt[2].getText() == "O" && bt[5].getText() == "O" && bt[8].getText() == "O" ||
+				bt[0].getText() == "O" && bt[4].getText() == "O" && bt[8].getText() == "O" ||
+				bt[2].getText() == "O" && bt[4].getText() == "O" && bt[6].getText() == "O" ) {
+					
+					JOptionPane.showMessageDialog(null, "O ganhou");	
+					PO++;
+					atualizar();
+					limpar();
+		}
+		else if(cont == 9){
+			JOptionPane.showMessageDialog(null, "Empate");	
+			limpar();
+		}
 	}
 	
+	// Limpar as posicoes do jogo para um novo jogo
+	public void limpar() {
+		for (int i = 0; i < 9; i++) {
+			bt[i].setText("");
+			click[i] = false;
+			xo = false;
+		}
+	}
+
+	// Funcao principal
+	public static void main(String [] args) {
+		new JogoDaVelha();
+	}
 }
