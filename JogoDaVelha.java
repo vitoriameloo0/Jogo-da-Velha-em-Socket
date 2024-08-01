@@ -53,6 +53,7 @@ public class JogoDaVelha extends JFrame {
         novo.setBounds(410, 130, 140, 30);
         zerar.setBounds(410, 180, 140, 30);
 
+        // botao de novo jogo
         novo.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,7 +61,7 @@ public class JogoDaVelha extends JFrame {
                 enviarMensagem("NOVO_JOGO");
             }
         });
-
+        // botao de zerar o placar
         zerar.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,6 +109,7 @@ public class JogoDaVelha extends JFrame {
         }).start();
     }
 
+    // Funçao para criar os botoes no formato do tabuleiro
     public void criarBotao(JButton[] bt) {
         int cont = 0;
         for (int i = 0; i < 3; i++) {
@@ -121,17 +123,19 @@ public class JogoDaVelha extends JFrame {
         }
     }
 
+    // Funçao para definir os botoes do tabuleiro com falso
     public void inicializarClick(boolean[] click) {
         for (int i = 0; i < 9; i++) {
             click[i] = false;
         }
     }
-
+    // Funcoa para atualizar o placar 
     public void atualizar() {
         px.setText("X -> " + PX);
         po.setText("O -> " + PO);
     }
 
+    // Funcao para definir qual jogador ganhou, se houve empate ou se ainda não acabou o jogo
     public void ganhou() {
         int cont = 0;
 
@@ -177,7 +181,7 @@ public class JogoDaVelha extends JFrame {
             enviarMensagem("NOVO_JOGO");
         }
     }
-
+    // Funçao para limpar os botoes
     public void limpar() {
         for (int i = 0; i < 9; i++) {
             bt[i].setText("");
@@ -200,6 +204,7 @@ public class JogoDaVelha extends JFrame {
         }
     }
 
+    // Funcao para processar qual mensagem sera enviado para o cliente
     public void processarMensagem(String message) {
         if (message.equals("NOVO_JOGO")) {
             limpar();
