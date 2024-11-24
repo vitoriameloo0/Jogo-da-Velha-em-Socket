@@ -29,7 +29,7 @@ public class JogoDaVelha extends JFrame {
 
         try {
             socket = new DatagramSocket();
-            serverAddress = InetAddress.getByName("192.168.0.104"); // Endereço do servidor
+            serverAddress = InetAddress.getByName("localhost"); // Endereço do servidor
         } catch (Exception e) {
             e.printStackTrace();
         }
